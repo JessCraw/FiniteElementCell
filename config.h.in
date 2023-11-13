@@ -1,0 +1,2 @@
+#define OUTPUT_DIR "@OUTPUT_DIRECTORY@"
+
