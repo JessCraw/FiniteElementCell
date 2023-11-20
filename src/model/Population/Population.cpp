@@ -18,25 +18,3 @@ Population::Population(int numCells, int CellRefinment, int CellRadius)
 }
 
 std::vector<CellPtr> Population::GetCells() { return mCells; }
-
-// Population::Population(CircleMeshGenerator *pMesh, int numCells) : mpMesh(pMesh),
-//                                                                    mNumCells(numCells)
-// {
-//     print("This should be called ");
-//     print_var2(pMesh->mNumberOfCells, mNumCells);
-//     if (pMesh->mNumberOfCells != mNumCells)
-//     {
-//         print("duplicate mesh");
-//     }else
-//     { // Want to use this mesh to create a bunch of cells
-
-//     }
-
-// }
-
-// // CircleMeshGenerator *p_static_cast_mesh = static_cast<CircleMeshGenerator *>(pMesh);
-// Population::Population(AbstractMesh *pMesh, int numCells) : mpMesh(pMesh),
-//                                                             mNumCells(numCells)
-// {
-//     print("This should be called yet -- not implemented");
-// }

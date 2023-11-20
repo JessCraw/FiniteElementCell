@@ -20,10 +20,12 @@
 #include <utility>
 #include <vector>
 
+// #include "AbstractNodeProperty.hpp"
+
 class Population
 {
 public:
-    Population(int numCells, int CellRefinment = 10, int CellRadius = 1);
+    Population(int numCells, int CellRefinment = 20, int CellRadius = 1);
 
     /** Member pointers */
     /** Vector of cells. */
@@ -36,6 +38,7 @@ public:
 
     /** Member functions */
     std::vector<CellPtr> GetCells();
+    // void CreateNodeProperties(AbstractNodeProperty& prototype, std::string PropertiesName);
 
     // std::vector<std::unique_ptr<Cell>> mCells;
     // Population(AbstractMesh* pMesh, int numCells);

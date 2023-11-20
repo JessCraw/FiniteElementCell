@@ -48,6 +48,22 @@ public:
     NodePtr GetNodeA();
     NodePtr GetNodeB();
     std::pair<int, int> GetNodeIndexPair();
+
+    double GetEdgeLength();
+
+    /** Map to Edge Properties and functions to access and change properties */
+        std::map<std::string, double> mEdgeProperties;
+        std::vector<std::string> mListOfEdgeProperties;
+        double GetEdgeItem(std::string PropertyName);
+        void SetEdgeItem(std::string PropertyName, double Value);
+        void DeclareEdgeProperty(std::string PropertyName, double Value);
+        std::vector<std::string> GetListOfEdgeProperties();
+        
+
+
+
+
+
 };
 
 #endif  // CELL_H

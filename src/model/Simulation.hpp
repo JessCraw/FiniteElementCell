@@ -7,6 +7,7 @@
 // #include "Parameters.h"
 #include "/Users/crawshj/Documents/Projects/Tufts/adaptive-cell-effort-model/build/config.h"
 #include "AbstractForce.hpp"
+#include "AbstractSignalling.hpp"
 #include "Cell/Cell.hpp"
 #include "SmartPointers.hpp"
 #include "VtkMeshWriter.hpp"
@@ -17,6 +18,10 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include "SimpleRemeshing.hpp"
+
+#include <cstdlib>   // For rand() function
+#include <ctime>     // For seeding the random number generator
 
 class Simulation
 {
@@ -28,13 +33,20 @@ public:
 
     /** Functions */
     void AddForce(boost::shared_ptr<AbstractForce> pForce);
+    void AddSignalling(SignallingPtr pSignal);
+    void AddMeshAdaption(MeshPtr pMeshAdaption);
     void CalculateNextPositons();
 
     /** Member pointers */
     Population *mpCellPopulation;
     /** The mechanics used to determine the new location of the cells, a list of the forces. */
     std::vector<ForcePtr> mpForceCollection;
-    // std::vector<boost::shared_ptr<AbstractForce<ELEMENT_DIM, SPACE_DIM> > > mForceCollection;
+    /** Collection of all the signalling functions in the populaiton */
+    std::vector<SignallingPtr> mpSignallingCollection;    // std::vector<boost::shared_ptr<AbstractForce<ELEMENT_DIM, SPACE_DIM> > > mForceCollection;
+    /** Collection of classes to update the mesh */
+    std::vector<MeshPtr> mpMeshAdaptionCollection;    // std::vector<boost::shared_ptr<AbstractForce<ELEMENT_DIM, SPACE_DIM> > > mForceCollection;
+
+
 
     /** Member variables */
     double mDragCoefficient = 10;

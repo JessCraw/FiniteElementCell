@@ -1,6 +1,6 @@
 
-#ifndef LINEARSPRINGFORCE_HPP_
-#define LINEARSPRINGFORCE_HPP_
+#ifndef NORMALFORCE_HPP_
+#define NORMALFORCE_HPP_
 
 #include "AbstractForce.hpp"
 #include "Edges/Edge.hpp"
@@ -15,13 +15,13 @@
 #include <utility>
 #include <vector>
 
-class LinearSpringForce : public AbstractForce
+class NormalForce : public AbstractForce
 {
 protected:
     /**
      * Spring stiffness.
      */
-    double mSpringConstant = 0.001;
+    double mPressure = 0.001;
 
     /**
      * Initial resting spring length after cell division.
@@ -30,36 +30,29 @@ protected:
      * The value of this parameter should be larger than mDivisionSeparation,
      * because of pressure from neighbouring springs.
      */
-    double mRestSpringLength;
 
 public:
     /**
      * Constructor.
      */
-    LinearSpringForce();
+    NormalForce();
 
     /**
      * Destructor.
      */
-    virtual ~LinearSpringForce();
+    virtual ~NormalForce();
 
     /** Member variables */
     void AddForceContribution(Population &rCellPopulation);
     void SetupForce(Population &rCellPopulation);
-    double GetSpringConstant(); /** return mSpringConstant **/
     /**
      * Set mSpringConstant.
      */
-    void SetSpringConstant(double springStiffness);
+    void SetPressure(double Pressure);
+    
 
-    /** Member maps */
-    std::map<EdgePtr, double> mRestSpringLengths;
-
-
-    // Making mesh finer
-    void UpdateInitialNodeConfiguration(NodePtr pNodeOld,std::vector<NodePtr> pNodesNew);
     void UpdateInitialEdgeConfiguration(EdgePtr pEdgeNode,std::vector<EdgePtr> pEdgesNew);
 
 };
 
-#endif /*LINEARSPRINGFORCE_HPP_*/
+#endif /*NormalForce_HPP_*/

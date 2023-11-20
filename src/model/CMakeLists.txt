@@ -24,6 +24,12 @@ add_library(
     mesh/AbstractMesh.cpp
     mesh/Nodes/Node.cpp
     mesh/Edges/Edge.cpp
+    mesh/SimpleRemeshing.cpp
+    # Signalling
+    signalling/AbstractSignalling.cpp
+    signalling/VEGFsignalling.cpp
+    # Properties
+    Properties/AbstractNodeProperty.hpp
 )
 
 
@@ -31,6 +37,6 @@ add_library(
 target_include_directories(
     model
     # PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} mesh/Generators mesh/Population mesh/Population/Cell
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} mesh  forces Population Population/spring  Population/Cell environment utility ode mesh/Generators
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} mesh Properties signalling forces Population Population/spring  Population/Cell environment utility ode mesh/Generators
     INTERFACE ${SOURCE_DIR}
 )

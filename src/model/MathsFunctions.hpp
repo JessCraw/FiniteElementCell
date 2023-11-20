@@ -4,7 +4,7 @@
 #define MathsFunctions_HPP_
 
 #include "utility/Coordinates.h"
-
+#include <cassert>
 #include <math.h>
 
 #include <algorithm>

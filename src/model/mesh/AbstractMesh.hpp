@@ -25,8 +25,9 @@
 
 #include <utility>
 
+class AbstractMesh;
+typedef boost::shared_ptr<AbstractMesh> MeshPtr;
 class AbstractMesh
-// typedef boost::shared_ptr<AbstractMesh> MeshPtr;
 {
 public:
     AbstractMesh();
@@ -49,6 +50,14 @@ public:
     std::vector<std::vector<int>> GetNeighbours();
     std::vector<NodePtr> GetNodes();
     std::vector<EdgePtr> GetEdges();
+    NodePtr AddNode(c_vector<double, 2> Location);
+    EdgePtr AddEdge(NodePtr Node1, NodePtr Node2);
+
+    void AddNode(NodePtr pNewNode);
+    void AddEdge(EdgePtr pEdge);
+
+
+    void RemoveEdge(EdgePtr pEdge);
 
     std::string GetMeshType();
     // This funciton will tell us how many cells are in a mesh

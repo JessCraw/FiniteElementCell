@@ -41,6 +41,8 @@
 #include <vtkXMLPUnstructuredGridWriter.h>
 #include <vtkXMLPolyDataWriter.h>
 #include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkAppendFilter.h>
+
 
 class VtkMeshWriter
 {

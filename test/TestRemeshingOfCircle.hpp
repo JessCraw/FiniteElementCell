@@ -37,12 +37,11 @@ public:
         // MutableMesh<2, 3> *mutable_mesh = generator.GetMesh();
 
         // Set up the cell population, the meshes for each cell are in here
-        Population cellPopulation(1);
-
+        Population cellPopulation(1, 10);
         // Create the simultor where all the magic happens
         Simulation simulator(&cellPopulation);
 
-        simulator.SetOutputDirectory("NoRemeshing");
+        simulator.SetOutputDirectory("RemeshingCircle_WithOnlySpring");
         simulator.SetEndTime(1000000);//70000000);
         simulator.SetDt(0.1);
         simulator.SetSamplingTimestepMultiple(70000);
@@ -56,9 +55,9 @@ public:
         simulator.AddForce(pspringforce);
 
         /** Outwards force */
-        MAKE_PTR(RadialForce, pRadialForce);
-        pRadialForce->SetPressure(0.00001);
-        simulator.AddForce(pRadialForce);
+        // MAKE_PTR(RadialForce, pRadialForce);
+        // pRadialForce->SetPressure(0.0001);
+        // simulator.AddForce(pRadialForce);
 
         /** VEGF signalling */
         MAKE_PTR(VEGFsignalling, pVEGF);

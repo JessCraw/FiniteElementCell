@@ -2,22 +2,43 @@
 
 #include "LinearSpringForce.hpp"
 #include "RadialForce.hpp"
-
-// #include "helperFunctions/SmartPointers.hpp"
-
+// #include "AbstractNodeProperty.hpp"
 Simulation::Simulation(Population *rCellPopulation)
     : mpCellPopulation(rCellPopulation)
 {
 }
 void Simulation::RunSimulation()
 {
+    print(" ---  Setup simulation  --- need to put this all in the SetUpSimulation() function --- ");
+    SimpleRemeshing Remesher = SimpleRemeshing();
+    // Remesher.AddForceCollection(mpForceCollection);
+    VtkMeshWriter mMeshWriter = VtkMeshWriter(*mpCellPopulation, mOutputDirectory);
+    mMeshWriter.WriteVTKCellMesh(0);
+    Remesher.CallRemeshing(*mpCellPopulation);
+    
     SetUpSimulation();
+    mMeshWriter.WriteVTKCellMesh(1);
+
+
+    // Setup remesher 
+    
+
+
+    std::srand(static_cast<unsigned int>(std::time(0)));
 
     // Time stepping loop
     double t_current = 0;
-    int counter = 0;
+    int counter = 2;
+    print(" --- Running simulation --- ");
     while (t_current < mEndTime) {
-        // Loop over all forces
+
+        /** Update the signalling across all cells */
+        for (typename std::vector<SignallingPtr>::iterator iter = mpSignallingCollection.begin(); iter != mpSignallingCollection.end();
+            ++iter) {
+            (*iter)->UpdateSignalling(*mpCellPopulation);
+        }
+
+        /** Loop over all the forces and save them in the nodes */
         for (typename std::vector<ForcePtr>::iterator iter = mpForceCollection.begin(); iter != mpForceCollection.end();
              ++iter) {
             (*iter)->AddForceContribution(*mpCellPopulation);
@@ -26,10 +47,22 @@ void Simulation::RunSimulation()
         /** Update the positions for each cell mesh, basic forwards time stepping */
         CalculateNextPositons();
 
+        // Call remeshing from here. currently random 
+        // Generate a random number between 0 and 1
+        double randomNumber = static_cast<double>(std::rand()) / RAND_MAX;
+        // double threshold = 0.00001;
+        // if (randomNumber < threshold) 
+        // {
+        //     Remesher.CallRemeshing(*mpCellPopulation);
+        // }
+
+        
+
+
         /** Write out the mesh for the current time step */
-        // print_var3(counter, mSamplingTimestepMultiple, (counter%mSamplingTimestepMultiple));
-        if ((mSamplingTimestepMultiple % counter) == 0) {
+        if ((counter%mSamplingTimestepMultiple) == 0) {
             mMeshWriter.WriteVTKCellMesh(counter);
+
         }
 
         counter += 1;
@@ -65,6 +98,8 @@ void Simulation::CalculateNextPositons()
 // AddForce(boost::shared_ptr<AbstractForce<ELEMENT_DIM,SPACE_DIM> > pForce)
 void Simulation::AddForce(boost::shared_ptr<AbstractForce> pForce) { mpForceCollection.push_back(pForce); }
 
+void Simulation::AddSignalling(SignallingPtr pSignal) { mpSignallingCollection.push_back(pSignal); }
+
 void Simulation::SetUpSimulation()
 {
     assert(mOutputDirectory != "");
@@ -75,8 +110,12 @@ void Simulation::SetUpSimulation()
         (*iter)->SetupForce(*mpCellPopulation);
     }
 
-    VtkMeshWriter mMeshWriter = VtkMeshWriter(*mpCellPopulation, mOutputDirectory);
-    mMeshWriter.WriteVTKCellMesh(0);
+    /** Set up the initial configuration for the signalling factors*/
+    for (typename std::vector<SignallingPtr>::iterator iter = mpSignallingCollection.begin(); iter != mpSignallingCollection.end();
+         ++iter) {
+        (*iter)->SetupSignalling(*mpCellPopulation, mTimeStep);
+    }
+
 }
 
 void Simulation::SetOutputDirectory(std::string Directory)

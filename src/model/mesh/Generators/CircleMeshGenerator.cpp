@@ -36,7 +36,8 @@ CircleMeshGenerator::CircleMeshGenerator(int nNodes, double Radius, double cente
 
     // Define all the neighbours
     for (int i = 1; i < nEdges - 1; i++) {
-        mpNodes[i]->SetNeighbours({mpNodes[i - 1], mpNodes[i + 1]});
+        std::vector<NodePtr> NeighboursVec = {mpNodes[i - 1], mpNodes[i + 1]};
+        mpNodes[i]->SetNeighbours(NeighboursVec);
         mNeighboursVector.push_back({i - 1, i + 1});
     }
     // The is for node 0

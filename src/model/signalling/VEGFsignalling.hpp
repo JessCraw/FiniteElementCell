@@ -1,8 +1,8 @@
 
-#ifndef RADIALFORCE_HPP_
-#define RADIALFORCE_HPP_
+#ifndef VEGFSIGNALLING_HPP_
+#define VEGFSIGNALLING_HPP_
 
-#include "AbstractForce.hpp"
+#include "AbstractSignalling.hpp"
 #include "Edges/Edge.hpp"
 #include "Nodes/Node.hpp"
 #include "Population.hpp"
@@ -14,14 +14,25 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <boost/numeric/odeint.hpp>
 
-class RadialForce : public AbstractForce
+class VEGFsignalling : public AbstractSignalling
 {
 protected:
     /**
-     * Spring stiffness.
+     * Set up initial conditions
      */
-    double mPressure = 0.001;
+
+    double mk_on = 1;
+    double mk_off = 1;
+
+    std::map<EdgePtr, double> mEdgeReceptors;
+    std::map<EdgePtr, double> mVEGF;
+    std::map<EdgePtr, double> mBoundVEGF;
+
+    double mTimeStep;
+
+
 
     /**
      * Initial resting spring length after cell division.
@@ -35,24 +46,19 @@ public:
     /**
      * Constructor.
      */
-    RadialForce();
+    VEGFsignalling();
 
     /**
      * Destructor.
      */
-    virtual ~RadialForce();
+    virtual ~VEGFsignalling();
 
     /** Member variables */
-    void AddForceContribution(Population &rCellPopulation);
-    void SetupForce(Population &rCellPopulation);
+    void UpdateSignalling(Population &rCellPopulation);
+    void SetupSignalling(Population &rCellPopulation, double dt);
     /**
      * Set mSpringConstant.
      */
-    void SetPressure(double Pressure);
-    
-
-    void UpdateInitialEdgeConfiguration(EdgePtr pEdgeNode,std::vector<EdgePtr> pEdgesNew);
-
 };
 
-#endif /*RadialForce_HPP_*/
+#endif /*VEGFsignalling_HPP_*/

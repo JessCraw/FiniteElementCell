@@ -30,6 +30,7 @@ void VtkMeshWriter::WriteVTKCellMesh(int time)
 {
     // Create the cells mesh
     vtkUnstructuredGrid *pVtkUnstructedMesh = this->MakeVtkCellMesh();
+    
     this->WriteMesh(pVtkUnstructedMesh, "mesh", time);
 }
 
@@ -38,7 +39,7 @@ void VtkMeshWriter::WriteVTKCellMesh(int time)
 
 void VtkMeshWriter::UpdatePVDFile(int time)
 {
-    vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+    // vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
     std::string directory = mOutputDirectory;  //+ std::to_string(time) + ".pvtp";
 
     // Number of time steps
@@ -133,13 +134,6 @@ void VtkMeshWriter::WriteMesh(vtkUnstructuredGrid *vtkMesh, std::string filename
 
     // Want to delete mesh here
     vtkMesh->Delete();
-
-    // // Delete the mesh
-    // mesh->DeleteCells();
-    // mesh->RemoveAllPoints();
-
-    // // Clear reference
-    // mesh = nullptr;
 }
 
 vtkUnstructuredGrid *VtkMeshWriter::MakeVtkMesh()
@@ -169,53 +163,165 @@ vtkUnstructuredGrid *VtkMeshWriter::MakeVtkMesh()
     return pVtkUnstructedMesh;
 }
 
+
+
 vtkUnstructuredGrid *VtkMeshWriter::MakeVtkCellMesh()
 {
-    vtkUnstructuredGrid *pVtkUnstructedMesh = vtkUnstructuredGrid::New();
-    // Construct nodes aka as Points
-    vtkPoints *p_pts = vtkPoints::New(VTK_DOUBLE);
-    p_pts->GetData()->SetName("Vertex positions");
+
+     // Create the append filter
+    // vtkSmartPointer<vtkAppendFilter> appendFilter = vtkSmartPointer<vtkAppendFilter>::New();
+    vtkAppendFilter *appendFilter = vtkAppendFilter::New();
+    
+    int cellcounter =0;
     /**
      * mCells is a pointer to the vector containing all the cell pointers, to access cell
      * i, we need to use (*mCells)[i], this thing I get from this will be a pointer to that cell
      **/
-    int n = 0;
-    int TotalN = 0;
     std::vector<CellPtr> pCells = mpCellPopulation.GetCells();
-    for (std::vector<CellPtr>::iterator celIt = pCells.begin(); celIt != pCells.end(); ++celIt) {
+    for (std::vector<CellPtr>::iterator celIt = pCells.begin(); celIt != pCells.end(); ++celIt) 
+    {
+        
+        /** Set up vtk mesh for this cell  */
+        vtkUnstructuredGrid *pVtkCellMesh = vtkUnstructuredGrid::New();
+    
+        vtkPoints *p_pts = vtkPoints::New(VTK_DOUBLE);
+        p_pts->GetData()->SetName("Vertex positions");
+
+
         /** Get the mesh from the cell  */
         MeshPtr pcellMesh = (*celIt)->GetMesh();
-
         /** Get the nodes from the mesh  */
         std::vector<NodePtr> pNodes = pcellMesh->GetNodes();
-
+        int n = 0;
         /** Loop over nodes and put them in the vtk mesh  */
         for (std::vector<NodePtr>::iterator noIt = pNodes.begin(); noIt != pNodes.end(); ++noIt) {
             c_vector<double, 2> Location = (*noIt)->GetNodeLocation();
             p_pts->InsertPoint(n, Location[0], Location[1], 0);
             n += 1;
         }
-
+        pVtkCellMesh->SetPoints(p_pts);
+        p_pts->Delete();
+        
         /** Loop over edges, get the node indexes, and put them in the vtk mesh  */
         std::vector<EdgePtr> mpEdges = pcellMesh->GetEdges();
         for (std::vector<EdgePtr>::iterator edgIt = mpEdges.begin(); edgIt != mpEdges.end(); ++edgIt) {
             std::pair<int, int> IndexPair = (*edgIt)->GetNodeIndexPair();
-
             vtkCell *p_cell = vtkLine::New();
             vtkIdList *p_cell_id_list = p_cell->GetPointIds();
             {
-                p_cell_id_list->SetId(0, (IndexPair).first + TotalN);  // Node in Spring 0
-                p_cell_id_list->SetId(1, (IndexPair).second + TotalN);  // Node in Spring 1
+                p_cell_id_list->SetId(0, (IndexPair).first );  // Node in Spring 0
+                p_cell_id_list->SetId(1, (IndexPair).second );  // Node in Spring 1
+                // p_cell_id_list->InsertValue(2, 0.9);
             }
-            pVtkUnstructedMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
+
+            
+
+            // std::vector<std::string> EdgeProperties = (*edgIt)->GetListOfEdgeProperties();
+            // for (std::vector<std::string>::iterator pProp = EdgeProperties.begin(); pProp != EdgeProperties.end(); ++pProp) 
+            // {   
+            //     // Want to add the property to the edge
+            //     std::cout<<*pProp<<std::endl;
+            //     double Property  = (*edgIt)->GetEdgeItem(*pProp);
+            //     p_cell_id_list->setProperty().setColor(1, 1, 1);
+            // }
+            // Want to add cell data here
+            // template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+            // void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
+            // {
+            //     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
+            //     p_scalars->SetName(dataName.c_str());
+            //     for (unsigned i=0; i<dataPayload.size(); i++)
+            //     {
+            //         p_scalars->InsertNextValue(dataPayload[i]);
+            //     }
+
+            //     vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
+            //     p_cell_data->AddArray(p_scalars);
+            //     p_scalars->Delete(); //Reference counted
+            // }
+            pVtkCellMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
             p_cell->Delete();  // Reference counted
         }
+        vtkIntArray  *edgeColors = vtkIntArray::New();
+        // vtkSmartPointer<vtkIntArray>  edgeColors = vtkSmartPointer<vtkIntArray>::New();
+        edgeColors->SetNumberOfComponents(1);
+        edgeColors->SetName("test");
 
-        TotalN += n;
+        for (std::vector<EdgePtr>::iterator edgIt = mpEdges.begin(); edgIt != mpEdges.end(); ++edgIt) 
+        {
+            edgeColors->InsertValue(1,0);
+        }
+        // pVtkCellMesh->GetPointData()->SetScalars(edgeColors);
+
+        //     // Add the color array to the graph
+        // pVtkCellMesh->GetEdgeData()->AddArray(edgeColors);
+
+
+        appendFilter->AddInputData(pVtkCellMesh);
     }
 
-    pVtkUnstructedMesh->SetPoints(p_pts);
-    p_pts->Delete();
+    // vtkUnstructuredGrid> combinedMesh = appendFilter->GetOutput();
+    appendFilter->Update();
+    vtkUnstructuredGrid *pVtkUnstructedMesh =  appendFilter->GetOutput();
 
     return pVtkUnstructedMesh;
 }
+
+
+
+// vtkUnstructuredGrid *VtkMeshWriter::MakeVtkCellMesh()
+// {
+//     vtkUnstructuredGrid *pVtkUnstructedMesh = vtkUnstructuredGrid::New();
+//     // Construct nodes aka as Points
+//     vtkPoints *p_pts = vtkPoints::New(VTK_DOUBLE);
+//     p_pts->GetData()->SetName("Vertex positions");
+//     int cellcounter =0;
+//     /**
+//      * mCells is a pointer to the vector containing all the cell pointers, to access cell
+//      * i, we need to use (*mCells)[i], this thing I get from this will be a pointer to that cell
+//      **/
+//     int n = 0;
+//     int TotalN = 0;
+//     std::vector<CellPtr> pCells = mpCellPopulation.GetCells();
+//     for (std::vector<CellPtr>::iterator celIt = pCells.begin(); celIt != pCells.end(); ++celIt) {
+//         /** Get the mesh from the cell  */
+//         MeshPtr pcellMesh = (*celIt)->GetMesh();
+//         print_var1(TotalN)
+
+//         /** Get the nodes from the mesh  */
+//         std::vector<NodePtr> pNodes = pcellMesh->GetNodes();
+
+//         /** Loop over nodes and put them in the vtk mesh  */
+//         for (std::vector<NodePtr>::iterator noIt = pNodes.begin(); noIt != pNodes.end(); ++noIt) {
+//             c_vector<double, 2> Location = (*noIt)->GetNodeLocation();
+//             p_pts->InsertPoint(n, Location[0], Location[1], 0);
+//             n += 1;
+//         }
+
+//         if (cellcounter <2)
+//         {
+//             /** Loop over edges, get the node indexes, and put them in the vtk mesh  */
+//             std::vector<EdgePtr> mpEdges = pcellMesh->GetEdges();
+//             for (std::vector<EdgePtr>::iterator edgIt = mpEdges.begin(); edgIt != mpEdges.end(); ++edgIt) {
+//                 std::pair<int, int> IndexPair = (*edgIt)->GetNodeIndexPair();
+
+//                 vtkCell *p_cell = vtkLine::New();
+//                 vtkIdList *p_cell_id_list = p_cell->GetPointIds();
+//                 {
+//                     p_cell_id_list->SetId(0, (IndexPair).first + TotalN);  // Node in Spring 0
+//                     p_cell_id_list->SetId(1, (IndexPair).second + TotalN);  // Node in Spring 1
+//                 }
+//                 pVtkUnstructedMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
+//                 p_cell->Delete();  // Reference counted
+//             }
+//         }
+
+//         TotalN += n;
+//         cellcounter+=1;
+//     }
+
+//     pVtkUnstructedMesh->SetPoints(p_pts);
+//     p_pts->Delete();
+
+//     return pVtkUnstructedMesh;
+// }

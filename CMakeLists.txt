@@ -32,7 +32,7 @@ add_custom_target(
 # Acemodel options
 # option(GRAPHICS "Show Graphics" ON)
 # option(IMGUI "Show imgui windows" ON)
-# option(DEBUGGING "Debug ON/OFF" OFF)
+# option(DEBUGGING "Debug ON/OFF" ON)
 # option(BENCHMARKING "Benchmarking ON/OFF" OFF)
 option(BUILD_TESTING "Build Tests" ON)
 option(TRUE_RANDOM "Use non-deterministic random numbers" OFF)
@@ -104,6 +104,8 @@ find_package(VTK REQUIRED PATHS /opt/homebrew/Cellar/vtk/9.2.6_5/include/vtk-9.2
 find_package(VTK REQUIRED)
 include_directories(/opt/homebrew/Cellar/vtk/9.2.6_5/)
 target_link_libraries(TestJessSuite ${VTK_LIBRARIES}  model)
+
+target_link_libraries( TestRemeshingOfCircle ${VTK_LIBRARIES}  model)
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/config.h.in

@@ -15,9 +15,16 @@
 #include <numeric>
 #include <utility>
 
+// #include "Node.hpp"
+// #include "Edge/Edge.hpp"
 /**
  * An abstract force class, for use in cell-based simulations.
  */
+
+// class Node;
+// typedef boost::shared_ptr<Node> NodePtr;
+// class Edge;
+// typedef boost::shared_ptr<Edge> EdgePtr;
 
 class AbstractForce;
 typedef boost::shared_ptr<AbstractForce> ForcePtr;
@@ -58,33 +65,15 @@ public:
     virtual void AddForceContribution(Population &rCellPopulation) = 0;
     virtual void SetupForce(Population &rCellPopulation) = 0;
 
-    /**
-     * Outputs force used in the simulation to file and then calls OutputForceParameters to output all relevant
-     * parameters.
-     *
-     * @param rParamsFile the file stream to which the parameters are output
-     */
-    // void OutputForceInfo(out_stream& rParamsFile);
+    // Making mesh courser
+    void UpdateInitialNodeConfiguration(std::vector<NodePtr> pNodesOld, NodePtr pNodeNew);
+    void UpdateInitialEdgeConfiguration(std::vector<EdgePtr> pEdgesOld, EdgePtr pEdgeNode);
 
-    /**
-     * Outputs force parameters to file.
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
-     * @param rParamsFile the file stream to which the parameters are output
-     */
-    // virtual void OutputForceParameters(out_stream& rParamsFile)=0;
+    // Making mesh finer
+    void UpdateInitialNodeConfiguration(NodePtr pNodeOld,std::vector<NodePtr> pNodesNew);
+    virtual void UpdateInitialEdgeConfiguration(EdgePtr pEdgeNode,std::vector<EdgePtr> pEdgesNew)= 0;
 
-    /**
-     * Write any data necessary to a visualization setup file.
-     * Used by AbstractCellBasedSimulation::WriteVisualizerSetupFile().
-     *
-     * @param pVizSetupFile a visualization setup file
-     */
-    // virtual void WriteDataToVisualizerSetupFile(out_stream& pVizSetupFile);
 };
 
-// TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractForce)
 
 #endif /*ABSTRACTFORCE_HPP_*/
